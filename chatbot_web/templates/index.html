@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChatBot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <h2>ChatBot</h2>
+        <div id="chatbox"></div>
+        <input id="userInput" type="text" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            let userText = document.getElementById("userInput").value;
+            if (!userText.trim()) return;
+
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += "<p><strong>You:</strong> " + userText + "</p>";
+            document.getElementById("userInput").value = "";
+
+            fetch(`/get?msg=${encodeURIComponent(userText)}`)
+                .then(res => res.json())
+                .then(data => {
+                    chatbox.innerHTML += "<p><strong>Bot:</strong> " + data + "</p>";
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                });
+        }
+    </script>
+</body>
+</html>
