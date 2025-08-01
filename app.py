@@ -1,6 +1,12 @@
 from flask import Flask, render_template, request, jsonify
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
+import spacy.cli
+
+# Download spaCy model at runtime (for Render)
+spacy.cli.download("en_core_web_sm")
+
+app = Flask(__name__)
 
 # Create Flask app
 app = Flask(__name__)
