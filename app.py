@@ -1,26 +1,33 @@
-from flask import Flask, request, jsonify, render_template
-from transformers import pipeline
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-chat = pipeline("text-generation", model="gpt2")
+# Custom replies
+custom_replies = {
+    "hi": "Hello! How can I help you today?",
+    "hello": "Hi! Kya haal hai?",
+    "kya haal hai": "Sab badhiya! Tum sunao?",
+    "how are you": "I'm doing great! Tum kaise ho?",
+    "bye": "Bye! Jaldi milte hain!",
+    "thank you": "You're welcome!",
+    "kya tum insan ho": "Nahi, main ek AI hoon. Lekin dil se hoon ❤️",
+    "tumhe kisne banaya": "I am made by LootyPlayz i.e. Gaurav.",
+    "who made you": "I am made by LootyPlayz i.e. Gaurav.",
+    "who make you": "I am made by LootyPlayz i.e. Gaurav.",
+}
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/chat', methods=['POST'])
-def chat_route():
-    user_input = request.json['message']
-    if user_input.lower() in ["who made you", "who made u", "tumhe kisne banaya", "who make u"]:
-        return jsonify({'reply': "I am made by LootyPlayz i.e. Gaurav"})
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_input = request.json.get("message", "").strip().lower()
+    response = custom_replies.get(user_input, "Sorry, mujhe ye samajh nahi aaya. Aur kuch poochhna?")
+    return jsonify({"reply": response})
 
-    response = chat(user_input, max_new_tokens=50, do_sample=True)[0]['generated_text']
-    reply = response[len(user_input):].strip()
-    return jsonify({'reply': reply})
-
-if __name__ == '__main__':
-    # Port default 5000 if not set
-    import os
+# Port bind karna zaroori hai Render ke liye
+import os
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=False, host="0.0.0.0", port=port)
