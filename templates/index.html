@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LootyPlayz Chatbot</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #111; color: #fff; text-align: center; padding: 40px; }
+        #chatbox { width: 400px; margin: auto; border: 2px solid #444; padding: 20px; border-radius: 10px; background: #222; }
+        input[type="text"] { width: 80%; padding: 10px; margin-top: 10px; }
+        button { padding: 10px; background: #06f; color: white; border: none; cursor: pointer; }
+        #messages { text-align: left; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>LootyPlayz Chatbot 🤖</h2>
+        <div id="messages"></div>
+        <input type="text" id="userInput" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById("userInput");
+            const message = userInput.value;
+            if (!message) return;
+
+            const messages = document.getElementById("messages");
+            messages.innerHTML += `<p><strong>You:</strong> ${message}</p>`;
+
+            fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                messages.innerHTML += `<p><strong>Bot:</strong> ${data.reply}</p>`;
+                userInput.value = "";
+            });
+        }
+    </script>
+</body>
+</html>
