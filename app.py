@@ -1,20 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from transformers import pipeline, set_seed
 
 app = Flask(__name__)
 
-# Custom replies
-custom_replies = {
-    "hi": "Hello! How can I help you today?",
-    "hello": "Hi! Kya haal hai?",
-    "kya haal hai": "Sab badhiya! Tum sunao?",
-    "how are you": "I'm doing great! Tum kaise ho?",
-    "bye": "Bye! Jaldi milte hain!",
-    "thank you": "You're welcome!",
-    "kya tum insan ho": "Nahi, main ek AI hoon. Lekin dil se hoon ❤️",
-    "tumhe kisne banaya": "I am made by LootyPlayz i.e. Gaurav.",
-    "who made you": "I am made by LootyPlayz i.e. Gaurav.",
-    "who make you": "I am made by LootyPlayz i.e. Gaurav.",
-}
+# Load GPT-2 pipeline
+generator = pipeline("text-generation", model="gpt2")
+set_seed(42)
 
 @app.route("/")
 def index():
@@ -22,12 +13,13 @@ def index():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    user_input = request.json.get("message", "").strip().lower()
-    response = custom_replies.get(user_input, "Sorry, mujhe ye samajh nahi aaya. Aur kuch poochhna?")
+    user_input = request.json.get("message", "")
+    response = generator(user_input, max_length=50, num_return_sequences=1)[0]['generated_text']
     return jsonify({"reply": response})
 
-# Port bind karna zaroori hai Render ke liye
+# Render deployment compatibility
 import os
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(debug=False, host="0.0.0.0", port=port)
